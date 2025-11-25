@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SECURESCOPE SOC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="top-bar">
+        <div class="brand">
+            <div class="live-indicator"></div>SECURESCOPE SECURITY OPERATIONS
+        </div>
+        <div style="font-size: 11px; color: #8b949e;">KERNEL v3.0-HARDENED</div>
+    </div>
+    <div class="dashboard">
+        <div class="stat-card"><span class="stat-label">Active Containers</span><span class="stat-value"
+                id="count-containers">0</span></div>
+        <div class="stat-card"><span class="stat-label">Threats Neutralized</span><span class="stat-value red"
+                id="count-threats">0</span></div>
+        <div class="stat-card"><span class="stat-label">DNS Encryption</span><span class="stat-value green">DoH
+                Active</span></div>
+        <div class="stat-card"><span class="stat-label">Policy</span><span class="stat-value"
+                style="font-size: 14px; margin-top:4px;">STRICT / NO-TRACK</span></div>
+    </div>
+
+    <div class="containers-section">
+        <div class="section-title">Container Fleet Overview</div>
+        <table id="containers-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Profile</th>
+                    <th>Title</th>
+                    <th>Proxy</th>
+                    <th>TTL</th>
+                    <th>Uptime</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Populated via JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="log-container" id="logs"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

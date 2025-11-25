@@ -2,13 +2,14 @@
   "name": "securescope",
   "version": "3.0.0-hardened",
   "description": "SecureScope - Military Grade Browser Isolation",
-  "main": "main.js",
+  "main": "src/main/index.js",
   "scripts": {
     "start": "electron ."
   },
   "author": "SecureScope Systems",
   "license": "UNLICENSED",
   "devDependencies": {
-    "electron": "^29.0.0"
+    "electron": "^29.0.0",
+    "playwright": "^1.56.1"
   }
 }
