@@ -5,15 +5,33 @@ const { systemLog } = require('./logger');
 const PROFILES = require('./profiles');
 
 function createBlackBox() {
+    if (!state.mainWindow) {
+        console.error('Cannot create BlackBox: mainWindow is null');
+        return;
+    }
     const ses = session.fromPartition('persist:audit-log');
-    state.blackBoxView = new BrowserView({ webPreferences: { session: ses, nodeIntegration: true, contextIsolation: false } });
-    state.blackBoxView.webContents.loadFile(path.join(__dirname, '../renderer/components/blackbox/index.html'));
+    state.blackBoxView = new BrowserView({
+        webPreferences: {
+            session: ses,
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false
+        }
+    });
+    const bbPath = path.resolve(__dirname, '../renderer/components/blackbox/index.html');
+    console.log('Loading Blackbox from:', bbPath);
+    state.blackBoxView.webContents.loadFile(bbPath);
     state.tabs['BLACKBOX'] = { view: state.blackBoxView, title: 'AUDIT LOG' };
     state.mainWindow.webContents.send('blackbox-created');
     systemLog('SYSTEM', 'SecureScope Kernel v3.0 Online. Hardening: MAX.');
 }
 
 function createNewTab(url = 'https://www.google.com', profileKey = 'STANDARD') {
+    if (!state.mainWindow) {
+        console.error('Cannot create New Tab: mainWindow is null');
+        return;
+    }
+
     const profile = PROFILES[profileKey] || PROFILES.STANDARD;
     const tabId = Date.now().toString();
 
@@ -131,7 +149,7 @@ function createNewTab(url = 'https://www.google.com', profileKey = 'STANDARD') {
 
     view.webContents.setWindowOpenHandler(({ url }) => {
         systemLog('THREAT', `Popup intercepted: ${url}`);
-        createNewTab(url, profileKey); // Inherit profile for popups? Or default? Let's inherit.
+        createNewTab(url, profileKey);
         return { action: 'deny' };
     });
 
@@ -142,8 +160,12 @@ function createNewTab(url = 'https://www.google.com', profileKey = 'STANDARD') {
 }
 
 function switchToTab(id) {
+    if (!state.mainWindow) return;
     if (!state.tabs[id]) return;
-    if (state.activeTabId && state.tabs[state.activeTabId]) state.mainWindow.removeBrowserView(state.tabs[state.activeTabId].view);
+
+    if (state.activeTabId && state.tabs[state.activeTabId]) {
+        state.mainWindow.removeBrowserView(state.tabs[state.activeTabId].view);
+    }
 
     if (state.activeTabId && state.activeTabId !== id) {
         clipboard.clear();
@@ -180,15 +202,8 @@ function closeTab(id) {
     systemLog('SYSTEM', `Destroying Container ${id}. Memory scrubbed.`);
 
     clipboard.clear();
-    // Only clear storage if NOT persistent profile?
-    // Wait, the requirement says "Cuando lo cierras, se guarda... pero cookies aislado".
-    // So for persistent profiles, we should NOT clear storage data, just cache maybe?
-    // Actually, session.clearStorageData() wipes everything.
-    // If it is a persistent partition, Electron handles saving cookies to disk automatically.
-    // We should NOT wipe it if it is persistent.
 
-    // Check if persistent
-    const isPersistent = state.tabs[id].profile === 'BANKING'; // Simple check based on key
+    const isPersistent = state.tabs[id].profile === 'BANKING';
 
     if (!isPersistent) {
         view.webContents.session.clearCache();
@@ -199,7 +214,7 @@ function closeTab(id) {
     }
 
     if (state.activeTabId === id) {
-        state.mainWindow.removeBrowserView(view);
+        if(state.mainWindow) state.mainWindow.removeBrowserView(view);
         state.activeTabId = null;
     }
     view.webContents.destroy();
