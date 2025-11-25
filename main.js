@@ -337,8 +337,8 @@ function checkNavButtons(view) {
     if (activeTabId && tabs[activeTabId] && activeTabId !== 'BLACKBOX' && mainWindow) {
         try {
             mainWindow.webContents.send('update-nav-state', {
-                canGoBack: view.webContents.canGoBack(),
-                canGoForward: view.webContents.canGoForward()
+                canGoBack: view.webContents.navigationHistory.canGoBack(),
+                canGoForward: view.webContents.navigationHistory.canGoForward()
             });
         } catch(e) {
             console.error('Error updating nav state:', e);
@@ -410,10 +410,14 @@ ipcMain.on('navigate', (e, url) => {
     }
 });
 ipcMain.on('go-back', () => {
-    if (activeTabId !== 'BLACKBOX' && tabs[activeTabId]) tabs[activeTabId].view.webContents.goBack();
+    if (activeTabId !== 'BLACKBOX' && tabs[activeTabId] && tabs[activeTabId].view.webContents.navigationHistory.canGoBack()) {
+        tabs[activeTabId].view.webContents.navigationHistory.goBack();
+    }
 });
 ipcMain.on('go-forward', () => {
-    if (activeTabId !== 'BLACKBOX' && tabs[activeTabId]) tabs[activeTabId].view.webContents.goForward();
+    if (activeTabId !== 'BLACKBOX' && tabs[activeTabId] && tabs[activeTabId].view.webContents.navigationHistory.canGoForward()) {
+        tabs[activeTabId].view.webContents.navigationHistory.goForward();
+    }
 });
 ipcMain.on('reload', () => {
     if (activeTabId !== 'BLACKBOX' && tabs[activeTabId]) tabs[activeTabId].view.webContents.reload();
