@@ -79,7 +79,7 @@ function createWindow() {
             nodeIntegration: true,
             contextIsolation: false,
             sandbox: false, // Critical for require('electron') in renderer
-            enableRemoteModule: true // Just in case, though deprecated
+            enableRemoteModule: true
         }
     });
 
@@ -114,14 +114,9 @@ function createWindow() {
         activeTabId = null;
     });
 
-    mainWindow.webContents.once('dom-ready', () => {
-        console.log('Main Window DOM Ready. Initializing...');
-        createBlackBox();
-        // Slight delay to ensure renderer is listening
-        setTimeout(() => {
-             createNewTab('https://www.google.com');
-        }, 500);
-    });
+    // We no longer blindly create tabs on dom-ready.
+    // We wait for 'renderer-ready' signal.
+    console.log('Main Window created. Waiting for renderer signal...');
 }
 
 // --- BLACKBOX ---
@@ -140,8 +135,6 @@ function createBlackBox() {
     blackBoxView.webContents.loadFile(bbPath);
     tabs['BLACKBOX'] = { view: blackBoxView, title: 'AUDIT LOG' };
 
-    // Defer sending message until view is loaded? Or send to mainWindow?
-    // We send 'blackbox-created' to MAIN WINDOW renderer so it adds the tab button.
     if(mainWindow) mainWindow.webContents.send('blackbox-created');
     systemLog('SYSTEM', 'SecureScope Kernel v3.0 Online. Hardening: MAX.');
 }
@@ -204,9 +197,9 @@ function createNewTab(url = 'https://www.google.com', profileKey = 'STANDARD') {
 
     const finalPrefs = {
         session: ses,
-        sandbox: true, // Content should be sandboxed
-        contextIsolation: true, // Content should be isolated
-        nodeIntegration: false, // Content should NOT have node access
+        sandbox: true,
+        contextIsolation: true,
+        nodeIntegration: false,
         plugins: false,
         enableWebSQL: false,
         webgl: false,
@@ -327,7 +320,6 @@ function closeTab(id) {
         activeTabId = null;
     }
 
-    // Delay destruction slightly to avoid races? No, but handle possible errors
     try {
         view.webContents.destroy();
     } catch(e) {
@@ -368,6 +360,34 @@ app.on('window-all-closed', () => {
 });
 
 // --- IPC HANDLERS ---
+
+// HANDSHAKE: Wait for renderer to be ready!
+ipcMain.on('renderer-ready', () => {
+    console.log('IPC: renderer-ready. Initializing tabs now.');
+    if (!blackBoxView) createBlackBox();
+
+    // Only create initial tab if none exist (to prevent duplicates on reload)
+    const existingTabs = Object.keys(tabs).filter(k => k !== 'BLACKBOX');
+    if (existingTabs.length === 0) {
+        createNewTab('https://www.google.com');
+    } else {
+        // If we reloaded the renderer, re-send the tabs?
+        // For now, simpler to just restore the active tab UI if it exists,
+        // but `renderer.js` clears UI on reload.
+        // Let's just create one new tab for simplicity or re-emit existing.
+        // Ideally we'd sync state, but for this scope, a new tab is safer to ensure visibility.
+        // Actually, if we reload, `tabs` variable in main persists.
+        // But the renderer DOM is gone. We need to rebuild the renderer DOM.
+
+        // Rebuild DOM for existing tabs
+        if(blackBoxView) mainWindow.webContents.send('blackbox-created');
+        existingTabs.forEach(tid => {
+            mainWindow.webContents.send('tab-created', tid);
+        });
+        if(activeTabId) switchToTab(activeTabId);
+    }
+});
+
 ipcMain.on('new-tab', () => {
     console.log('IPC: new-tab');
     createNewTab('https://www.google.com');
