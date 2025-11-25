@@ -1,8 +1,8 @@
-const { app, BrowserWindow, BrowserView, ipcMain, session, clipboard } = require('electron');
+const { app, BrowserWindow, BrowserView, ipcMain, session, clipboard, dialog } = require('electron');
 const path = require('path');
 
 // --- STATE MANAGEMENT ---
-let mainWindow;
+let mainWindow = null;
 let tabs = {}; // { tabId: { view, title, profile, proxy, ttl, creationTime, timer } }
 let activeTabId = null;
 let blackBoxView = null;
@@ -69,6 +69,7 @@ function systemLog(type, message) {
 
 // --- WINDOW CREATION ---
 function createWindow() {
+    console.log('Creating Main Window...');
     mainWindow = new BrowserWindow({
         width: 1280, height: 850, minWidth: 900, minHeight: 600,
         title: "SecureScope", backgroundColor: '#dfe3e8',
@@ -77,7 +78,8 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            sandbox: false
+            sandbox: false, // Critical for require('electron') in renderer
+            enableRemoteModule: true // Just in case, though deprecated
         }
     });
 
@@ -91,7 +93,9 @@ function createWindow() {
         });
     });
 
-    mainWindow.loadFile('index.html');
+    const indexPath = path.resolve(__dirname, 'index.html');
+    console.log('Loading index from:', indexPath);
+    mainWindow.loadFile(indexPath);
 
     mainWindow.on('resize', () => {
         if (!mainWindow) return;
@@ -104,31 +108,50 @@ function createWindow() {
         }
     });
 
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+        tabs = {};
+        activeTabId = null;
+    });
+
     mainWindow.webContents.once('dom-ready', () => {
+        console.log('Main Window DOM Ready. Initializing...');
         createBlackBox();
-        createNewTab('https://www.google.com');
+        // Slight delay to ensure renderer is listening
+        setTimeout(() => {
+             createNewTab('https://www.google.com');
+        }, 500);
     });
 }
 
 // --- BLACKBOX ---
 function createBlackBox() {
+    console.log('Creating Blackbox...');
     const ses = session.fromPartition('persist:audit-log');
     blackBoxView = new BrowserView({
         webPreferences: {
             session: ses,
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            sandbox: false
         }
     });
-    blackBoxView.webContents.loadFile('blackbox.html');
+    const bbPath = path.resolve(__dirname, 'blackbox.html');
+    blackBoxView.webContents.loadFile(bbPath);
     tabs['BLACKBOX'] = { view: blackBoxView, title: 'AUDIT LOG' };
-    mainWindow.webContents.send('blackbox-created');
+
+    // Defer sending message until view is loaded? Or send to mainWindow?
+    // We send 'blackbox-created' to MAIN WINDOW renderer so it adds the tab button.
+    if(mainWindow) mainWindow.webContents.send('blackbox-created');
     systemLog('SYSTEM', 'SecureScope Kernel v3.0 Online. Hardening: MAX.');
 }
 
 // --- TABS LOGIC ---
 function createNewTab(url = 'https://www.google.com', profileKey = 'STANDARD') {
-    if (!mainWindow) return;
+    if (!mainWindow) {
+        console.error('createNewTab called but mainWindow is null');
+        return;
+    }
 
     const profile = PROFILES[profileKey] || PROFILES.STANDARD;
     const tabId = Date.now().toString();
@@ -181,9 +204,9 @@ function createNewTab(url = 'https://www.google.com', profileKey = 'STANDARD') {
 
     const finalPrefs = {
         session: ses,
-        sandbox: true,
-        contextIsolation: true,
-        nodeIntegration: false,
+        sandbox: true, // Content should be sandboxed
+        contextIsolation: true, // Content should be isolated
+        nodeIntegration: false, // Content should NOT have node access
         plugins: false,
         enableWebSQL: false,
         webgl: false,
@@ -240,12 +263,17 @@ function createNewTab(url = 'https://www.google.com', profileKey = 'STANDARD') {
 
     view.webContents.loadURL(url).catch(err => systemLog('THREAT', `Load Fail: ${err.message}`));
 
+    console.log(`Tab created: ${tabId}. Sending to renderer...`);
     mainWindow.webContents.send('tab-created', tabId);
     switchToTab(tabId);
 }
 
 function switchToTab(id) {
-    if (!tabs[id]) return;
+    console.log(`Switching to tab: ${id}`);
+    if (!tabs[id]) {
+        console.error(`Tab ${id} not found!`);
+        return;
+    }
     if (!mainWindow) return;
 
     if (activeTabId && tabs[activeTabId]) {
@@ -285,16 +313,27 @@ function closeTab(id) {
 
     const isPersistent = tabs[id].profile === 'BANKING';
     if (!isPersistent) {
-        view.webContents.session.clearCache();
-        view.webContents.session.clearStorageData();
-        view.webContents.session.clearAuthCache();
+        try {
+            view.webContents.session.clearCache();
+            view.webContents.session.clearStorageData();
+            view.webContents.session.clearAuthCache();
+        } catch (e) {
+            console.error('Error clearing session data:', e);
+        }
     }
 
     if (activeTabId === id) {
         mainWindow.removeBrowserView(view);
         activeTabId = null;
     }
-    view.webContents.destroy();
+
+    // Delay destruction slightly to avoid races? No, but handle possible errors
+    try {
+        view.webContents.destroy();
+    } catch(e) {
+        console.error('Error destroying view:', e);
+    }
+
     delete tabs[id];
 
     const ids = Object.keys(tabs);
@@ -303,32 +342,67 @@ function closeTab(id) {
 }
 
 function checkNavButtons(view) {
-    if (activeTabId && tabs[activeTabId] && activeTabId !== 'BLACKBOX') {
-        mainWindow.webContents.send('update-nav-state', {
-            canGoBack: view.webContents.canGoBack(),
-            canGoForward: view.webContents.canGoForward()
-        });
+    if (activeTabId && tabs[activeTabId] && activeTabId !== 'BLACKBOX' && mainWindow) {
+        try {
+            mainWindow.webContents.send('update-nav-state', {
+                canGoBack: view.webContents.canGoBack(),
+                canGoForward: view.webContents.canGoForward()
+            });
+        } catch(e) {
+            console.error('Error updating nav state:', e);
+        }
     }
 }
 
 // --- APP LIFECYCLE ---
-app.whenReady().then(createWindow);
-app.on('window-all-closed', () => app.quit());
+app.whenReady().then(() => {
+    createWindow();
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+});
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit();
+});
 
 // --- IPC HANDLERS ---
-ipcMain.on('new-tab', () => createNewTab('https://www.google.com'));
-ipcMain.on('switch-tab', (e, id) => switchToTab(id));
-ipcMain.on('close-tab', (e, id) => closeTab(id));
+ipcMain.on('new-tab', () => {
+    console.log('IPC: new-tab');
+    createNewTab('https://www.google.com');
+});
+
+ipcMain.on('switch-tab', (e, id) => {
+    console.log('IPC: switch-tab', id);
+    switchToTab(id);
+});
+
+ipcMain.on('close-tab', (e, id) => {
+    console.log('IPC: close-tab', id);
+    closeTab(id);
+});
+
 ipcMain.on('navigate', (e, url) => {
-    if (activeTabId && activeTabId !== 'BLACKBOX') {
-        tabs[activeTabId].view.webContents.loadURL(url.startsWith('http') ? url : `https://${url}`);
+    if (activeTabId && activeTabId !== 'BLACKBOX' && tabs[activeTabId]) {
+        const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+        tabs[activeTabId].view.webContents.loadURL(fullUrl);
     }
 });
-ipcMain.on('go-back', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.goBack() });
-ipcMain.on('go-forward', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.goForward() });
-ipcMain.on('reload', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.reload() });
+ipcMain.on('go-back', () => {
+    if (activeTabId !== 'BLACKBOX' && tabs[activeTabId]) tabs[activeTabId].view.webContents.goBack();
+});
+ipcMain.on('go-forward', () => {
+    if (activeTabId !== 'BLACKBOX' && tabs[activeTabId]) tabs[activeTabId].view.webContents.goForward();
+});
+ipcMain.on('reload', () => {
+    if (activeTabId !== 'BLACKBOX' && tabs[activeTabId]) tabs[activeTabId].view.webContents.reload();
+});
 
-ipcMain.on('create-tab-with-profile', (e, { url, profile }) => createNewTab(url, profile));
+ipcMain.on('create-tab-with-profile', (e, { url, profile }) => {
+    console.log('IPC: create-tab-with-profile', profile);
+    createNewTab(url || 'https://www.google.com', profile);
+});
 
 ipcMain.on('get-containers', (event) => {
     const data = Object.keys(tabs).map(key => {
