@@ -3,8 +3,8 @@ from playwright.sync_api import sync_playwright
 
 def verify_ui():
     cwd = os.getcwd()
-    blackbox_path = f"file://{cwd}/src/renderer/components/blackbox/index.html"
-    browser_path = f"file://{cwd}/src/renderer/components/browser/index.html"
+    blackbox_path = f"file://{cwd}/blackbox.html"
+    browser_path = f"file://{cwd}/index.html"
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)

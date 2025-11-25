@@ -1,7 +1,3 @@
 
 > securescope@3.0.0-hardened start
 > electron .
-
-[7040:1125/015153.003668:ERROR:ozone_platform_x11.cc(244)] Missing X server or $DISPLAY
-[7040:1125/015153.003732:ERROR:env.cc(257)] The platform failed to initialize.  Exiting.
-/app/node_modules/electron/dist/electron exited with signal SIGSEGV
