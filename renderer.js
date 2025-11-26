@@ -16,6 +16,8 @@ const appContainer = document.getElementById('app-container');
 const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
 const tabsContainer = document.getElementById('tab-list');
 const newTabBtn = document.getElementById('new-tab-btn');
+const newTabBtnTitlebar = document.getElementById('new-tab-btn-titlebar');
+const newTabBtnList = document.getElementById('new-tab-btn-list');
 const urlInput = document.getElementById('url-input');
 const blackboxBtn = document.getElementById('blackbox-btn');
 
@@ -24,7 +26,18 @@ sidebarToggleBtn.onclick = () => {
     appContainer.classList.toggle('sidebar-open', isOpen);
     ipcRenderer.send('sidebar-state-change', isOpen);
 };
+
 newTabBtn.onclick = () => ipcRenderer.send('new-tab');
+newTabBtnTitlebar.onclick = () => {
+    if (!sidebar.classList.contains('open')) {
+        sidebar.classList.add('open');
+        appContainer.classList.add('sidebar-open');
+        ipcRenderer.send('sidebar-state-change', true);
+    }
+    ipcRenderer.send('new-tab');
+};
+newTabBtnList.onclick = () => ipcRenderer.send('new-tab');
+
 document.getElementById('btn-back').onclick = () => ipcRenderer.send('go-back');
 document.getElementById('btn-fwd').onclick = () => ipcRenderer.send('go-forward');
 document.getElementById('btn-reload').onclick = () => ipcRenderer.send('reload');

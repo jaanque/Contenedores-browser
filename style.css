@@ -42,6 +42,44 @@ body {
     left: 0;
 }
 
+#sidebar.open + #app-container #new-tab-btn-titlebar {
+    display: none;
+}
+
+#new-tab-btn-titlebar {
+    background: transparent;
+    border: none;
+    color: var(--text-color-secondary);
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+}
+
+#new-tab-btn-list {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 13px;
+    text-align: left;
+    width: 100%;
+}
+
+#new-tab-btn-list:hover {
+    background: var(--bg-color-lighter);
+}
+
+#new-tab-btn-list svg {
+    width: 16px;
+    height: 16px;
+}
+
 #tabs-header {
     padding: 12px;
     display: flex;
