@@ -201,7 +201,6 @@ body {
     color: #4b4b4b;
     flex-shrink: 0;
     transition: background 0.2s;
-    position: relative;
 }
 
 #new-tab-btn:hover {
@@ -315,41 +314,4 @@ body {
     outline: none;
     font-size: 14px;
     color: #1a1a1a;
-}
-
-/* Profile Menu */
-#profile-menu {
-    position: absolute;
-    top: 36px;
-    left: 0;
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    padding: 4px 0;
-    z-index: 1000;
-    min-width: 180px;
-    display: none;
-    -webkit-app-region: no-drag;
-}
-
-#profile-menu.visible {
-    display: block;
-}
-
-.profile-item {
-    padding: 8px 12px;
-    font-size: 13px;
-    color: #333;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-
-.profile-item:hover {
-    background: #f0f0f0;
-}
-
-.profile-item strong {
-    font-weight: 600;
 }

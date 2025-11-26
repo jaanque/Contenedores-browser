@@ -26,8 +26,9 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280, height: 850, minWidth: 900, minHeight: 600,
         title: "SecureScope", backgroundColor: '#dfe3e8',
+        frame: false,
         titleBarStyle: 'hidden',
-        titleBarOverlay: { color: '#dfe3e8', symbolColor: '#000000', height: 42 },
+        titleBarOverlay: { color: 'rgba(0,0,0,0)', symbolColor: '#000000', height: 42 },
         webPreferences: { nodeIntegration: true, contextIsolation: false }
     });
 
