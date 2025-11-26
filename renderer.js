@@ -1,4 +1,16 @@
 const { ipcRenderer } = require('electron');
+
+// Window Controls
+document.getElementById('minimize-btn').addEventListener('click', () => {
+    ipcRenderer.send('minimize-window');
+});
+document.getElementById('maximize-btn').addEventListener('click', () => {
+    ipcRenderer.send('maximize-window');
+});
+document.getElementById('close-btn').addEventListener('click', () => {
+    ipcRenderer.send('close-window');
+});
+
 const tabsContainer = document.getElementById('tabs-container');
 const newTabBtn = document.getElementById('new-tab-btn');
 const urlInput = document.getElementById('url-input');
