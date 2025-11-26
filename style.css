@@ -1,11 +1,11 @@
 :root {
-    --bg-color: #ffffff;
-    --bg-color-light: #f1f3f4;
-    --bg-color-lighter: #e8eaed;
-    --text-color: #202124;
-    --text-color-secondary: #5f6368;
-    --accent-color: #1a73e8;
-    --border-color: #d1d1d1;
+    --bg-color: #FFFFFF; /* Color de fondo de la ventana y pestaña activa */
+    --bg-color-light: #DEE1E6; /* Color de la barra de título/pestañas */
+    --bg-color-lighter: #F1F3F4; /* Hover sobre elementos */
+    --text-color: #202124; /* Texto principal y de pestaña activa */
+    --text-color-secondary: #5F6368; /* Texto de pestaña inactiva e iconos */
+    --accent-color: #1A73E8; /* Acento para foco en URL, etc. */
+    --border-color: #BDC1C6; /* Bordes y separadores */
     --ease-out: cubic-bezier(0.2, 0, 0.2, 1);
 }
 
@@ -26,7 +26,7 @@ body {
 }
 
 #titlebar {
-    height: 48px;
+    height: 40px; /* Chrome's titlebar is thinner */
     display: flex;
     align-items: flex-end;
     padding-left: 8px;
@@ -34,7 +34,6 @@ body {
     position: relative;
     z-index: 100;
     background-color: var(--bg-color-light);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 #traffic-lights {
@@ -50,44 +49,87 @@ body {
 #tabs-container {
     flex: 1;
     display: flex;
-    align-items: flex-end;
+    align-items: flex-start; /* Align to the top for the new tab shape */
     height: 100%;
     overflow: hidden;
+    margin-bottom: -1px; /* Overlap with navbar */
 }
 
 .tab {
-    height: 32px;
+    height: 36px;
     min-width: 60px;
-    max-width: 220px;
+    max-width: 240px;
     background-color: transparent;
-    border: 1px solid transparent;
-    border-bottom: none;
-    border-radius: 6px 6px 0 0;
-    margin-right: -1px;
     padding: 0 12px;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-color-secondary);
     cursor: default;
     position: relative;
     transition: all 0.2s var(--ease-out);
     -webkit-app-region: no-drag;
+    border: none;
+    outline: none;
+    margin-top: 4px; /* Space for the top curve */
 }
 
-.tab:hover {
+.tab:not(.active):hover {
     background-color: var(--bg-color-lighter);
 }
+
+.tab {
+    z-index: 1;
+}
+
+.tab::before, .tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 20px;
+    height: 20px;
+    background-size: 20px 20px;
+}
+
+.tab::before {
+    left: -20px;
+    background-image: radial-gradient(circle at 0 0, transparent 0, transparent 19px, var(--border-color) 20px);
+}
+
+.tab::after {
+    right: -20px;
+    background-image: radial-gradient(circle at 100% 0, transparent 0, transparent 19px, var(--border-color) 20px);
+}
+
+.tab:not(.active)::before, .tab:not(.active)::after {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 16px;
+    background: var(--border-color);
+}
+.tab:not(.active)::before { left: 0; }
+.tab:not(.active)::after { right: 0; }
+.tab + .tab::before {
+    left: -1px;
+}
+.tab:hover::before, .tab:hover::after {
+    opacity: 0.5;
+}
+
 
 .tab.active {
     background-color: var(--bg-color);
     color: var(--text-color);
-    border-top: 2px solid var(--accent-color);
-    border-left: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
-    border-bottom: none;
-    z-index: 2;
+    z-index: 3;
+    clip-path: polygon(8% 0, 92% 0, 100% 100%, 0% 100%);
+    margin-top: 0;
+    height: 40px;
+}
+.tab.active::before, .tab.active::after {
+    display: none;
 }
 
 .tab-text {
@@ -124,8 +166,8 @@ body {
     border-radius: 50%;
     border: none;
     background: transparent;
-    margin-left: 4px;
-    margin-bottom: 2px;
+    margin-left: 8px;
+    margin-top: 6px; /* Align with tab tops */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -148,6 +190,8 @@ body {
     padding: 0 12px;
     gap: 8px;
     flex-shrink: 0;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .nav-btn {

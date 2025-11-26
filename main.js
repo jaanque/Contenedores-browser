@@ -5,7 +5,7 @@ let mainWindow;
 let tabs = {};
 let activeTabId = null;
 let blackBoxView = null;
-const TOP_OFFSET = 96; // Altura UI (Titlebar + Navbar)
+const TOP_OFFSET = 88; // Altura UI (Titlebar + Navbar)
 
 // --- FASE 0: HARDENING DEL MOTOR CHROMIUM (Global) ---
 app.commandLine.appendSwitch('disable-http-cache');
@@ -20,7 +20,7 @@ app.commandLine.appendSwitch('no-referrer-header');
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280, height: 850, minWidth: 900, minHeight: 600,
-        title: "SecureScope", backgroundColor: '#ffffff',
+        title: "SecureScope", backgroundColor: '#DEE1E6',
         frame: false,
         titleBarStyle: 'hidden',
         webPreferences: { nodeIntegration: true, contextIsolation: false }
