@@ -47,7 +47,7 @@ function createTab(id) {
     el.onclick = () => ipcRenderer.send('switch-tab', id);
     el.onauxclick = (e) => { if (e.button === 1) closeTab(e, id); };
 
-    tabsContainer.insertBefore(el, newTabBtn);
+    tabsContainer.appendChild(el);
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
