@@ -5,7 +5,7 @@ let mainWindow;
 let tabs = {};
 let activeTabId = null;
 let blackBoxView = null;
-const TOP_OFFSET = 86; // Altura UI (Titlebar + Navbar)
+const TOP_OFFSET = 96; // Altura UI (Titlebar + Navbar)
 
 // --- FASE 0: HARDENING DEL MOTOR CHROMIUM (Global) ---
 app.commandLine.appendSwitch('disable-http-cache');

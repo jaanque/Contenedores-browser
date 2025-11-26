@@ -7,7 +7,17 @@
 </head>
 <body>
     <div id="titlebar">
-        <div id="window-title">SecureScope</div>
+        <div id="tabs-container">
+            <!-- Las pestañas se insertarán aquí dinámicamente -->
+            <button id="new-tab-btn" title="Nueva Pestaña">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg>
+            </button>
+        </div>
+        <div id="main-controls">
+            <button id="blackbox-btn" class="window-btn" title="Caja Negra">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"></path></svg>
+            </button>
+        </div>
         <div id="window-controls">
             <button id="minimize-btn" class="window-btn" title="Minimizar">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 14H4v-4h16v4z"></path></svg>
@@ -21,11 +31,6 @@
         </div>
     </div>
     <div id="main-content">
-        <div id="tabs-container">
-            <button id="new-tab-btn" title="Nueva Pestaña">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path></svg>
-            </button>
-        </div>
         <div id="navbar">
             <button class="nav-btn" id="btn-back" disabled title="Atrás">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
