@@ -5,7 +5,7 @@ let mainWindow;
 let tabs = {};
 let activeTabId = null;
 let blackBoxView = null;
-const TOP_OFFSET = 88; // Altura UI (Titlebar + Navbar)
+const TOP_OFFSET = 52;
 
 // --- FASE 0: HARDENING DEL MOTOR CHROMIUM (Global) ---
 app.commandLine.appendSwitch('disable-http-cache');
@@ -93,7 +93,9 @@ function updateBlackBoxData() {
                 id: tabId,
                 title: tab.title,
                 state: 'Activo',
-                ram: ram.toFixed(2)
+                ram: ram.toFixed(2),
+                url: tab.view.webContents.getURL(),
+                pid: pid
             });
         }
     }

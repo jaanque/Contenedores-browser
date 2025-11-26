@@ -14,9 +14,10 @@ ipcRenderer.on('update-containers', (event, containers, totalRam) => {
             <div class="title">${container.title}</div>
             <div class="info">
                 <p>ID: ${container.id}</p>
+                <p>PID: ${container.pid}</p>
+                <p>URL: ${container.url}</p>
                 <p>Estado: ${container.state}</p>
                 <p>RAM: ${container.ram} MB</p>
-                <!-- Aquí se puede añadir más información -->
             </div>
         `;
         containerList.appendChild(containerElement);
