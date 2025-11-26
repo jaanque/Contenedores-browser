@@ -20,7 +20,7 @@ app.commandLine.appendSwitch('no-referrer-header');
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280, height: 850, minWidth: 900, minHeight: 600,
-        title: "SecureScope", backgroundColor: '#202124',
+        title: "SecureScope", backgroundColor: '#ffffff',
         frame: false,
         titleBarStyle: 'hidden',
         webPreferences: { nodeIntegration: true, contextIsolation: false }
