@@ -1,56 +1,43 @@
 :root {
-    --bg-frame: #dfe3e8;
-    --bg-toolbar: #ffffff;
-    --bg-tab-active: #ffffff;
-    --text-color: #1a1a1a;
-    --accent-color: #0067c0;
-    --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+    --bg-color: #ffffff;
+    --text-color: #202124;
+    --text-color-secondary: #5f6368;
+    --accent-color: #1a73e8;
+    --border-color: #e8eaed;
+    --ease-out: cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
     overflow: hidden;
-    font-family: "Segoe UI Variable", "Segoe UI", sans-serif;
-    background: var(--bg-toolbar);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-color);
     display: flex;
     flex-direction: column;
     user-select: none;
+    color: var(--text-color);
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeOut {
-    to {
-        opacity: 0;
-        transform: scale(0.9);
-        width: 0;
-        padding: 0;
-        margin: 0;
-    }
+    to { opacity: 0; transform: scale(0.98); }
 }
 
 #titlebar {
-    height: 42px;
-    background: var(--bg-frame);
+    height: 40px;
+    background: transparent;
     display: flex;
     align-items: flex-end;
-    padding-left: 8px;
-    padding-right: 145px; /* Espacio para controles de ventana */
+    padding: 0 8px;
+    padding-right: 145px;
     -webkit-app-region: drag;
     position: relative;
     z-index: 100;
@@ -67,50 +54,38 @@ body {
 }
 
 .tab {
-    height: 34px;
-    min-width: 140px;
-    max-width: 220px;
+    height: 32px;
+    min-width: auto;
+    max-width: 200px;
     background: transparent;
-    border-radius: 8px 8px 0 0;
-    margin-right: 2px;
-    padding: 0 10px;
+    border-radius: 6px 6px 0 0;
+    margin: 0;
+    padding: 0 12px;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
-    color: #4b4b4b;
+    font-size: 13px;
+    color: var(--text-color-secondary);
     cursor: default;
     position: relative;
-    animation: slideIn 0.3s var(--ease-out-quint);
-    transition: all 0.25s var(--ease-out-quint);
+    animation: fadeIn 0.2s var(--ease-out);
+    transition: all 0.2s var(--ease-out);
 }
 
 .tab:hover {
-    background: rgba(255, 255, 255, 0.6);
-    transform: translateY(-2px);
+    background: #f1f3f4;
 }
 
 .tab.active {
-    background: var(--bg-tab-active);
+    background: var(--bg-color);
     color: var(--text-color);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-    z-index: 10;
-    font-weight: 600;
+    font-weight: 500;
 }
 
-.tab:not(.active):not(:hover)::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 8px;
-    bottom: 8px;
-    width: 1px;
-    background: #a0a0a0;
-    opacity: 0.3;
-}
+.tab:not(.active):not(:hover)::after { display: none; }
 
 .tab.closing {
-    animation: fadeOut 0.25s var(--ease-out-quint) forwards;
+    animation: fadeOut 0.2s var(--ease-out) forwards;
     pointer-events: none;
 }
 
@@ -122,27 +97,25 @@ body {
 }
 
 .tab-close {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.2s var(--ease-out-quint);
+    opacity: 0.7;
+    transition: all 0.2s var(--ease-out);
     cursor: pointer;
-    color: #666;
+    color: var(--text-color-secondary);
 }
 
 .tab:hover .tab-close {
     opacity: 1;
-    transform: scale(1);
 }
 
 .tab-close:hover {
-    background: #e0e0e0;
-    color: #333;
+    background: #e8eaed;
+    color: var(--text-color);
 }
 
 .tab-close svg {
@@ -152,64 +125,50 @@ body {
 }
 
 .tab.blackbox {
-    min-width: 46px !important;
-    max-width: 46px !important;
-    background: #f0f2f5;
+    min-width: 36px !important;
+    max-width: 36px !important;
     justify-content: center;
     padding: 0;
-    margin-right: 6px;
 }
-
-.tab.blackbox:hover {
-    background: #e5e7eb;
-}
-
-.tab.blackbox.active {
-    background: #ffffff;
-    color: var(--accent-color);
-}
-
 .tab.blackbox svg {
-    fill: #5f6368;
     width: 18px;
     height: 18px;
-    transition: fill 0.2s;
 }
-
-.tab.blackbox.active svg {
-    fill: var(--accent-color);
-}
-
-.tab.blackbox::after { display: none; }
+.tab.blackbox.active { color: var(--accent-color); }
 .tab.blackbox .tab-close { display: none; }
 
 #new-tab-btn {
     width: 32px;
     height: 32px;
-    border-radius: 4px;
+    border-radius: 50%;
     border: none;
     background: transparent;
     margin-left: 4px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4b4b4b;
+    color: var(--text-color-secondary);
     flex-shrink: 0;
-    transition: all 0.2s var(--ease-out-quint);
+    transition: all 0.2s var(--ease-out);
 }
 
 #new-tab-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: black;
-    transform: scale(1.1);
+    background: #f1f3f4;
+    color: var(--text-color);
+}
+
+#new-tab-btn svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
 }
 
 #navbar {
-    height: 44px;
-    background: var(--bg-toolbar);
-    border-bottom: 1px solid #e0e0e0;
+    height: 48px;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     padding: 0 12px;
@@ -220,87 +179,68 @@ body {
 }
 
 .nav-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     border: none;
     background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #5f5f5f;
+    color: var(--text-color-secondary);
     cursor: pointer;
-    transition: all 0.15s var(--ease-out-quint);
+    transition: background 0.2s var(--ease-out);
 }
 
 .nav-btn:hover:not(:disabled) {
-    background: #f0f0f0;
-    color: black;
-    transform: scale(1.05);
+    background: #f1f3f4;
 }
-
 .nav-btn:active:not(:disabled) {
-    background: #e0e0e0;
-    transform: scale(0.96);
+    background: #e8eaed;
 }
-
 .nav-btn:disabled {
-    color: #d0d0d0;
+    color: #bdc1c6;
     cursor: default;
 }
 
 .nav-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     fill: currentColor;
 }
 
 #omnibox {
     flex: 1;
-    height: 32px;
-    background: #f3f3f3;
-    border: 2px solid transparent;
-    border-radius: 6px;
+    height: 36px;
+    background: #f1f3f4;
+    border: 1px solid transparent;
+    border-radius: 18px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    transition: all 0.25s var(--ease-out-quint);
+    padding: 0 16px;
+    transition: all 0.2s var(--ease-out);
 }
 
 #omnibox:focus-within {
-    background: white;
+    background: var(--bg-color);
     border-color: var(--accent-color);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
 }
 
 #omnibox:hover:not(:focus-within) {
-    background: #eaeaea;
+    background: #e8eaed;
 }
 
 #secure-icon-wrapper {
     display: flex;
     align-items: center;
-    margin-right: 10px;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: background 0.2s var(--ease-out-quint);
-}
-
-#secure-icon-wrapper:hover {
-    background: #e5e7eb;
+    margin-right: 8px;
+    color: var(--text-color-secondary);
 }
 
 #secure-icon {
-    width: 14px;
-    height: 14px;
-    fill: #606060;
-    transition: fill 0.2s var(--ease-out-quint);
-}
-
-#secure-icon-wrapper:hover #secure-icon {
-    fill: var(--accent-color);
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
 }
 
 #url-input {
@@ -309,5 +249,5 @@ body {
     background: transparent;
     outline: none;
     font-size: 14px;
-    color: #1a1a1a;
+    color: var(--text-color);
 }
