@@ -53,7 +53,7 @@ function createWindow() {
 
     mainWindow.webContents.once('dom-ready', () => {
         createBlackBox();
-        createNewTab('https://www.google.com');
+        createNewTab('https://duckduckgo.com');
         setInterval(updateBlackBoxData, 2000);
     });
 
@@ -76,6 +76,13 @@ function createBlackBox() {
     blackBoxView.webContents.loadFile('blackbox.html');
     tabs['BLACKBOX'] = { view: blackBoxView, title: 'Caja Negra' };
     mainWindow.webContents.send('blackbox-created');
+}
+
+function logToBlackBox(message) {
+    if (blackBoxView && !blackBoxView.webContents.isDestroyed()) {
+        const timestamp = new Date().toLocaleTimeString();
+        blackBoxView.webContents.send('log-event', `[${timestamp}] ${message}`);
+    }
 }
 
 function updateBlackBoxData() {
@@ -110,6 +117,7 @@ function updateBlackBoxData() {
 
 // --- FÁBRICA DE CONTENEDORES AISLADOS ---
 function createNewTab(url) {
+    logToBlackBox(`Creando nuevo contenedor con URL: ${url}`);
     const tabId = Date.now().toString();
     const ses = session.fromPartition(`scope-${tabId}`, { cache: false });
 
@@ -164,6 +172,7 @@ function createNewTab(url) {
     view.webContents.on('crashed', () => { tabs[tabId].status = 'Fallido'; updateBlackBoxData(); });
 
     view.webContents.on('did-navigate', (e, newUrl) => {
+        logToBlackBox(`Contenedor ${tabId} navegó a: ${newUrl}`);
         if (activeTabId === tabId) mainWindow.webContents.send('update-url', newUrl);
         checkNavButtons(view);
     });
@@ -172,6 +181,12 @@ function createNewTab(url) {
         tabs[tabId].title = title;
         mainWindow.webContents.send('update-tab-info', { id: tabId, title: title });
         updateBlackBoxData();
+    });
+
+    view.webContents.on('page-favicon-updated', (e, favicons) => {
+        if (favicons && favicons.length > 0) {
+            mainWindow.webContents.send('update-tab-favicon', { id: tabId, favicon: favicons[0] });
+        }
     });
 
     view.webContents.setWindowOpenHandler(({ url }) => {
@@ -187,6 +202,7 @@ function createNewTab(url) {
 }
 
 function switchToTab(id) {
+    logToBlackBox(`Cambiando a contenedor: ${id}`);
     if (!tabs[id]) return;
     if (activeTabId && tabs[activeTabId]) {
         mainWindow.removeBrowserView(tabs[activeTabId].view);
@@ -215,6 +231,7 @@ function switchToTab(id) {
 
 function closeTab(id) {
     if (id === 'BLACKBOX' || !tabs[id]) return;
+    logToBlackBox(`Cerrando contenedor: ${id}`);
     const view = tabs[id].view;
 
     clipboard.clear();
@@ -254,7 +271,7 @@ ipcMain.on('sidebar-state-change', (e, isOpen) => {
         tabs[activeTabId].view.setBounds(getAppContentBounds());
     }
 });
-ipcMain.on('new-tab', () => createNewTab('https://www.google.com'));
+ipcMain.on('new-tab', () => createNewTab('https://duckduckgo.com'));
 ipcMain.on('switch-tab', (e, id) => switchToTab(id));
 ipcMain.on('close-tab', (e, id) => closeTab(id));
 ipcMain.on('navigate', (e, url) => {

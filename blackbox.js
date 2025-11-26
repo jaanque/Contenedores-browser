@@ -23,3 +23,11 @@ ipcRenderer.on('update-containers', (event, containers, totalRam) => {
         containerList.appendChild(containerElement);
     });
 });
+
+ipcRenderer.on('log-event', (event, message) => {
+    const logContainer = document.getElementById('event-log');
+    const logEntry = document.createElement('div');
+    logEntry.textContent = message;
+    logContainer.appendChild(logEntry);
+    logContainer.scrollTop = logContainer.scrollHeight;
+});

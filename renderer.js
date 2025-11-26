@@ -51,6 +51,10 @@ function createTab(id) {
     el.className = 'tab';
     el.id = `tab-${id}`;
 
+    const favicon = document.createElement('img');
+    favicon.className = 'tab-favicon';
+    favicon.src = 'default-favicon.png'; // A default favicon
+
     const text = document.createElement('span');
     text.className = 'tab-text';
     text.innerText = 'Cargando...';
@@ -64,7 +68,7 @@ function createTab(id) {
         closeTab(e, id);
     });
 
-    el.append(text, closeBtn);
+    el.append(favicon, text, closeBtn);
     el.onclick = () => ipcRenderer.send('switch-tab', id);
     el.onauxclick = (e) => { if (e.button === 1) closeTab(e, id); };
 
@@ -87,4 +91,5 @@ ipcRenderer.on('tab-active', (e, id) => {
 });
 ipcRenderer.on('update-url', (e, url) => urlInput.value = url);
 ipcRenderer.on('update-tab-info', (e, data) => { const el = document.getElementById(`tab-${data.id}`); if (el) el.querySelector('.tab-text').innerText = data.title; });
+ipcRenderer.on('update-tab-favicon', (e, data) => { const el = document.getElementById(`tab-${data.id}`); if (el) el.querySelector('.tab-favicon').src = data.favicon; });
 ipcRenderer.on('update-nav-state', (e, state) => { document.getElementById('btn-back').disabled = !state.canGoBack; document.getElementById('btn-fwd').disabled = !state.canGoForward; });

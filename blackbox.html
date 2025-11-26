@@ -49,6 +49,16 @@
             padding: 0 15px 15px;
             display: block;
         }
+
+        #event-log {
+            background-color: var(--bg-color-light);
+            border-radius: 8px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -57,6 +67,9 @@
     <div class="container-list" id="container-list">
         <!-- Los contenedores se añadirán aquí dinámicamente -->
     </div>
+
+    <h2>Registro de Eventos</h2>
+    <div id="event-log"></div>
 
     <script src="blackbox.js"></script>
 </body>
