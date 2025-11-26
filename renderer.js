@@ -11,11 +11,19 @@ document.getElementById('close-btn').addEventListener('click', () => {
     ipcRenderer.send('close-window');
 });
 
+const sidebar = document.getElementById('sidebar');
+const appContainer = document.getElementById('app-container');
+const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
 const tabsContainer = document.getElementById('tab-list');
 const newTabBtn = document.getElementById('new-tab-btn');
 const urlInput = document.getElementById('url-input');
 const blackboxBtn = document.getElementById('blackbox-btn');
 
+sidebarToggleBtn.onclick = () => {
+    const isOpen = sidebar.classList.toggle('open');
+    appContainer.classList.toggle('sidebar-open', isOpen);
+    ipcRenderer.send('sidebar-state-change', isOpen);
+};
 newTabBtn.onclick = () => ipcRenderer.send('new-tab');
 document.getElementById('btn-back').onclick = () => ipcRenderer.send('go-back');
 document.getElementById('btn-fwd').onclick = () => ipcRenderer.send('go-forward');

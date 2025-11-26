@@ -6,6 +6,14 @@ let tabs = {};
 let activeTabId = null;
 let blackBoxView = null;
 const TOP_OFFSET = 52;
+const SIDEBAR_WIDTH = 250;
+let isSidebarOpen = false;
+
+function getAppContentBounds() {
+    const bounds = mainWindow.getBounds();
+    const x = isSidebarOpen ? SIDEBAR_WIDTH : 0;
+    return { x: x, y: TOP_OFFSET, width: bounds.width - x, height: bounds.height - TOP_OFFSET };
+}
 
 // --- FASE 0: HARDENING DEL MOTOR CHROMIUM (Global) ---
 app.commandLine.appendSwitch('disable-http-cache');
@@ -38,10 +46,8 @@ function createWindow() {
     mainWindow.loadFile('index.html');
 
     mainWindow.on('resize', () => {
-        const bounds = mainWindow.getBounds();
-        const config = { x: 0, y: TOP_OFFSET, width: bounds.width, height: bounds.height - TOP_OFFSET };
         if (activeTabId && tabs[activeTabId]) {
-            tabs[activeTabId].view.setBounds(config);
+            tabs[activeTabId].view.setBounds(getAppContentBounds());
         }
     });
 
@@ -194,8 +200,7 @@ function switchToTab(id) {
     const currentView = tabs[id].view;
     mainWindow.addBrowserView(currentView);
 
-    const bounds = mainWindow.getBounds();
-    currentView.setBounds({ x: 0, y: TOP_OFFSET, width: bounds.width, height: bounds.height - TOP_OFFSET });
+    currentView.setBounds(getAppContentBounds());
 
     if (id === 'BLACKBOX') {
         updateBlackBoxData();
@@ -243,6 +248,12 @@ function checkNavButtons(view) {
 }
 
 // IPC Hooks
+ipcMain.on('sidebar-state-change', (e, isOpen) => {
+    isSidebarOpen = isOpen;
+    if (activeTabId && tabs[activeTabId]) {
+        tabs[activeTabId].view.setBounds(getAppContentBounds());
+    }
+});
 ipcMain.on('new-tab', () => createNewTab('https://www.google.com'));
 ipcMain.on('switch-tab', (e, id) => switchToTab(id));
 ipcMain.on('close-tab', (e, id) => closeTab(id));
