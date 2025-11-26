@@ -51,10 +51,21 @@ body {
     flex: 1;
     display: flex;
     align-items: center;
-    justify-content: center;
     height: 100%;
     overflow: hidden;
-    padding: 0 10px;
+    position: relative;
+}
+
+#tab-list {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none; /* Firefox */
+}
+#tab-list::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .tab {

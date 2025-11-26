@@ -21,12 +21,5 @@ ipcRenderer.on('update-containers', (event, containers, totalRam) => {
             </div>
         `;
         containerList.appendChild(containerElement);
-
-        const titleElement = containerElement.querySelector('.title');
-        const infoElement = containerElement.querySelector('.info');
-
-        titleElement.addEventListener('click', () => {
-            infoElement.style.display = infoElement.style.display === 'block' ? 'none' : 'block';
-        });
     });
 });

@@ -92,7 +92,7 @@ function updateBlackBoxData() {
             containersData.push({
                 id: tabId,
                 title: tab.title,
-                state: 'Activo',
+                state: tab.status || 'Activo',
                 ram: ram.toFixed(2),
                 url: tab.view.webContents.getURL(),
                 pid: pid
@@ -149,7 +149,13 @@ function createNewTab(url) {
         }
     });
 
-    tabs[tabId] = { view: view, title: 'Contenedor Seguro' };
+    tabs[tabId] = { view: view, title: 'Contenedor Seguro', status: 'Cargando...' };
+
+    view.webContents.on('did-start-loading', () => { tabs[tabId].status = 'Cargando...'; updateBlackBoxData(); });
+    view.webContents.on('did-stop-loading', () => { tabs[tabId].status = 'Activo'; updateBlackBoxData(); });
+    view.webContents.on('unresponsive', () => { tabs[tabId].status = 'Colgado'; updateBlackBoxData(); });
+    view.webContents.on('responsive', () => { tabs[tabId].status = 'Activo'; updateBlackBoxData(); });
+    view.webContents.on('crashed', () => { tabs[tabId].status = 'Fallido'; updateBlackBoxData(); });
 
     view.webContents.on('did-navigate', (e, newUrl) => {
         if (activeTabId === tabId) mainWindow.webContents.send('update-url', newUrl);

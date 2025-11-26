@@ -11,7 +11,7 @@ document.getElementById('close-btn').addEventListener('click', () => {
     ipcRenderer.send('close-window');
 });
 
-const tabsContainer = document.getElementById('tabs-container');
+const tabsContainer = document.getElementById('tab-list');
 const newTabBtn = document.getElementById('new-tab-btn');
 const urlInput = document.getElementById('url-input');
 const blackboxBtn = document.getElementById('blackbox-btn');
