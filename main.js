@@ -53,7 +53,7 @@ function createWindow() {
 
     mainWindow.webContents.once('dom-ready', () => {
         createBlackBox();
-        createNewTab('https://duckduckgo.com');
+        createNewTab();
         setInterval(updateBlackBoxData, 2000);
     });
 
@@ -116,7 +116,7 @@ function updateBlackBoxData() {
 }
 
 // --- FÁBRICA DE CONTENEDORES AISLADOS ---
-function createNewTab(url) {
+function createNewTab(url = `file://${path.join(__dirname, 'new-tab.html')}`) {
     logToBlackBox(`Creando nuevo contenedor con URL: ${url}`);
     const tabId = Date.now().toString();
     const ses = session.fromPartition(`scope-${tabId}`, { cache: false });
@@ -271,11 +271,20 @@ ipcMain.on('sidebar-state-change', (e, isOpen) => {
         tabs[activeTabId].view.setBounds(getAppContentBounds());
     }
 });
-ipcMain.on('new-tab', () => createNewTab('https://duckduckgo.com'));
+ipcMain.on('new-tab', () => createNewTab());
 ipcMain.on('switch-tab', (e, id) => switchToTab(id));
 ipcMain.on('close-tab', (e, id) => closeTab(id));
 ipcMain.on('navigate', (e, url) => {
-    if (activeTabId && activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.loadURL(url.startsWith('http') ? url : `https://${url}`);
+    if (activeTabId && activeTabId !== 'BLACKBOX') {
+        let finalUrl;
+        try {
+            const parsedUrl = new URL(url);
+            finalUrl = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:' ? url : `https://${url}`;
+        } catch (_) {
+            finalUrl = `https://duckduckgo.com/?q=${encodeURIComponent(url)}`;
+        }
+        tabs[activeTabId].view.webContents.loadURL(finalUrl);
+    }
 });
 ipcMain.on('go-back', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.navigationHistory.goBack() });
 ipcMain.on('go-forward', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.navigationHistory.goForward() });
