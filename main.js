@@ -1,5 +1,6 @@
 const { app, BrowserWindow, BrowserView, ipcMain, session, clipboard } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const { Readability } = require('@mozilla/readability');
 const { JSDOM } = require('jsdom');
 
@@ -337,10 +338,11 @@ ipcMain.on('toggle-reader-mode', () => {
         const readerView = new BrowserView();
         mainWindow.addBrowserView(readerView);
         readerView.setBounds(getAppContentBounds());
+        const readerCss = fs.readFileSync(path.join(__dirname, 'reader-view.css'), 'utf-8');
         const readerHtml = `
             <html>
                 <head>
-                    <link rel="stylesheet" href="file://${path.join(__dirname, 'reader-view.css')}">
+                    <style>${readerCss}</style>
                 </head>
                 <body>
                     <h1>${tab.article.title}</h1>
