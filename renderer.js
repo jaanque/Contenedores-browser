@@ -22,6 +22,15 @@ const newTabBtnTitlebar = document.getElementById('new-tab-btn-titlebar');
 const newTabBtnList = document.getElementById('new-tab-btn-list');
 const urlInput = document.getElementById('url-input');
 const blackboxBtn = document.getElementById('blackbox-btn');
+const readerModeBtn = document.getElementById('reader-mode-btn');
+
+ipcRenderer.on('update-reader-state', (e, isReadable) => {
+    readerModeBtn.style.display = isReadable ? 'block' : 'none';
+});
+
+readerModeBtn.onclick = () => {
+    ipcRenderer.send('toggle-reader-mode');
+};
 
 sidebarToggleBtn.onclick = () => {
     const isOpen = sidebar.classList.toggle('open');

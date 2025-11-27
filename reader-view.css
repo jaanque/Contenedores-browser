@@ -1,0 +1,16 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+h1 {
+    font-size: 2em;
+}
+img {
+    max-width: 100%;
+}
+pre {
+    white-space: pre-wrap;
+}

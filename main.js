@@ -1,5 +1,7 @@
 const { app, BrowserWindow, BrowserView, ipcMain, session, clipboard } = require('electron');
 const path = require('path');
+const { Readability } = require('@mozilla/readability');
+const { JSDOM } = require('jsdom');
 
 let mainWindow;
 let tabs = {};
@@ -8,6 +10,20 @@ let blackBoxView = null;
 const TOP_OFFSET = 52;
 const SIDEBAR_WIDTH = 250;
 let isSidebarOpen = false;
+let history = {};
+let recentlyClosedTabs = [];
+
+function addRecentlyClosedTab(tab) {
+    recentlyClosedTabs.unshift(tab);
+    if (recentlyClosedTabs.length > 5) {
+        recentlyClosedTabs.pop();
+    }
+}
+
+function updateHistory(url) {
+    const domain = new URL(url).hostname;
+    history[domain] = (history[domain] || 0) + 1;
+}
 
 function getAppContentBounds() {
     const bounds = mainWindow.getBounds();
@@ -175,7 +191,17 @@ function createNewTab(url = `file://${path.join(__dirname, 'new-tab.html')}`) {
 
     tabs[tabId] = { view: view, title: 'Contenedor Seguro', status: 'Cargando...', creationTime: creationTime };
 
+    view.webContents.on('did-stop-loading', async () => {
+        const html = await view.webContents.executeJavaScript('document.documentElement.outerHTML');
+        const doc = new JSDOM(html, { url: view.webContents.getURL() });
+        const reader = new Readability(doc.window.document);
+        const article = reader.parse();
+        tabs[tabId].article = article;
+        mainWindow.webContents.send('update-reader-state', article ? true : false);
+    });
+
     view.webContents.on('did-navigate', (e, newUrl) => {
+        updateHistory(newUrl);
         logToBlackBox(`Contenedor ${tabId} navegó a: ${newUrl}`);
         if (activeTabId === tabId) mainWindow.webContents.send('update-url', newUrl);
         checkNavButtons(view);
@@ -235,6 +261,7 @@ function switchToTab(id) {
 
 function closeTab(id) {
     if (id === 'BLACKBOX' || !tabs[id]) return;
+    addRecentlyClosedTab({ id: id, url: tabs[id].view.webContents.getURL(), title: tabs[id].title });
     logToBlackBox(`Cerrando contenedor: ${id}`);
     const view = tabs[id].view;
 
@@ -286,6 +313,47 @@ ipcMain.on('kill-process', (e, pid) => {
 ipcMain.on('new-tab', () => createNewTab());
 ipcMain.on('switch-tab', (e, id) => switchToTab(id));
 ipcMain.on('close-tab', (e, id) => closeTab(id));
+ipcMain.on('get-top-sites', (e) => {
+    const topSites = Object.entries(history)
+        .sort(([,a],[,b]) => b-a)
+        .slice(0, 6)
+        .map(([domain]) => `https://${domain}`);
+    e.returnValue = topSites;
+});
+ipcMain.on('get-recently-closed-tabs', (e) => {
+    e.returnValue = recentlyClosedTabs;
+});
+ipcMain.on('reopen-tab', (e, tab) => {
+    recentlyClosedTabs = recentlyClosedTabs.filter(t => t.id !== tab.id);
+    createNewTab(tab.url);
+});
+ipcMain.on('toggle-reader-mode', () => {
+    const tab = tabs[activeTabId];
+    if (tab.isReading) {
+        mainWindow.removeBrowserView(tab.readerView);
+        mainWindow.addBrowserView(tab.view);
+        tab.isReading = false;
+    } else {
+        const readerView = new BrowserView();
+        mainWindow.addBrowserView(readerView);
+        readerView.setBounds(getAppContentBounds());
+        const readerHtml = `
+            <html>
+                <head>
+                    <link rel="stylesheet" href="file://${path.join(__dirname, 'reader-view.css')}">
+                </head>
+                <body>
+                    <h1>${tab.article.title}</h1>
+                    ${tab.article.content}
+                </body>
+            </html>
+        `;
+        readerView.webContents.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(readerHtml)}`);
+        mainWindow.removeBrowserView(tab.view);
+        tab.readerView = readerView;
+        tab.isReading = true;
+    }
+});
 ipcMain.on('navigate', (e, url) => {
     if (activeTabId && activeTabId !== 'BLACKBOX') {
         let finalUrl;
