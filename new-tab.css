@@ -1,125 +1,200 @@
 :root {
-    --bg-color: #F7F7F7;
-    --text-color: #1D1D1F;
-    --border-color: #D6D6D6;
-    --accent-color: #007AFF;
+    --bg-color: #FFFFFF;
+    --text-color: #202124;
+    --text-secondary: #5f6368;
+    --accent-color: #1a73e8;
+    --search-bg: #FFFFFF;
+    --search-shadow: 0 1px 6px 0 rgba(32, 33, 36, .28);
+    --search-border: 1px solid #dfe1e5;
+    --search-hover-shadow: 0 1px 6px 0 rgba(32,33,36,0.28);
+    --item-hover: #f1f3f4;
 }
 
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
 }
 
 .search-container {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px; /* Offset from top similar to Chrome */
+    width: 100%;
 }
 
 h1 {
-    font-size: 48px;
-    font-weight: 600;
-    margin-bottom: 20px;
+    font-size: 56px; /* Chrome logo size approx */
+    font-weight: 500;
+    margin-bottom: 38px;
+    color: var(--text-color);
+    letter-spacing: -1px;
 }
 
 #search-form {
+    width: 100%;
     display: flex;
+    justify-content: center;
 }
 
 #search-input {
-    width: 400px;
-    height: 40px;
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 0 20px;
+    width: 561px;
+    height: 44px;
+    background: var(--search-bg);
+    border: var(--search-border);
+    border-radius: 24px;
+    padding: 0 20px 0 48px; /* Extra left padding for search icon if we add one */
     font-size: 16px;
     outline: none;
+    box-shadow: none;
+    transition: box-shadow 200ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    color: var(--text-color);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%239aa0a6"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: 14px center;
+    background-size: 20px;
 }
 
-#search-input:focus {
-    border-color: var(--accent-color);
+#search-input:hover, #search-input:focus {
+    box-shadow: var(--search-shadow);
+    border-color: transparent;
 }
 
-button {
+button[type="submit"] {
     display: none;
 }
 
-.dashboard-section {
-    margin-top: 40px;
-    text-align: center;
+/* Dashboard Sections Container */
+.dashboard-container {
+    margin-top: 30px;
+    width: 100%;
+    max-width: 1120px; /* Chrome max width */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
 }
 
+.dashboard-section {
+    text-align: center;
+    width: 100%;
+}
+
+.dashboard-section h2 {
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Shortcuts Grid (Top Sites) */
 .quick-links {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    max-width: 600px;
-    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0 10px;
 }
 
 .quick-links a {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    padding: 15px;
+    justify-content: center;
+    width: 112px;
+    height: 112px;
     border-radius: 8px;
-    background-color: #FFFFFF;
-    color: var(--text-color);
     text-decoration: none;
+    color: var(--text-color);
     transition: background-color 0.2s;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
 }
 
 .quick-links a:hover {
-    background-color: #E9E9E9;
+    background-color: var(--item-hover);
 }
 
-.quick-links a span {
-    display: block;
+.site-icon-container {
+    width: 48px;
+    height: 48px;
+    background-color: #f1f3f4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.quick-links a span.icon {
     width: 24px;
     height: 24px;
-    margin-right: 15px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
 }
 
-#recently-closed ul {
+.quick-links a span.title {
+    font-size: 13px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    padding: 0 4px;
+}
+
+/* Lists (Recently Closed) */
+ul {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-width: 400px;
-    margin: 20px auto;
+    display: inline-block;
+    text-align: left;
+    min-width: 300px;
 }
 
-#recently-closed li {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    background-color: #FFFFFF;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-}
-
-#recently-closed button {
-    background: var(--accent-color);
-    color: white;
-    border: none;
+li {
+    padding: 8px 16px;
     border-radius: 4px;
-    padding: 5px 10px;
+    font-size: 14px;
+    color: var(--text-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     cursor: pointer;
 }
 
+li:hover {
+    background-color: var(--item-hover);
+}
+
+li button {
+    background: transparent;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+li button:hover {
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
 #tips p {
-    max-width: 400px;
-    margin: 20px auto;
-    background-color: #FFFFFF;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: #f1f3f4;
+    padding: 12px 20px;
+    border-radius: 18px;
+    display: inline-block;
 }

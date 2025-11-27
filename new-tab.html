@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="img-src 'self' https://logo.clearbit.com">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; img-src 'self' https://logo.clearbit.com data:;">
     <title>Nueva Pestaña</title>
     <link rel="stylesheet" href="new-tab.css">
 </head>
@@ -10,22 +10,28 @@
     <div class="search-container">
         <h1>SecureScope</h1>
         <form id="search-form">
-            <input type="text" id="search-input" placeholder="Buscar en DuckDuckGo..." autofocus>
+            <input type="text" id="search-input" placeholder="Buscar en Web o escribir URL" autofocus autocomplete="off">
             <button type="submit">Buscar</button>
         </form>
     </div>
-    <div class="dashboard-section" id="top-sites">
-        <h2>Top Sitios</h2>
-        <div class="quick-links"></div>
+
+    <div class="dashboard-container">
+        <div class="dashboard-section" id="top-sites">
+            <!-- <h2>Top Sitios</h2> (Hidden for cleaner look, or small) -->
+            <div class="quick-links"></div>
+        </div>
+
+        <!-- Optional: Only show if there are items -->
+        <div class="dashboard-section" id="recently-closed" style="display: none;">
+            <h2>Cerradas Recientemente</h2>
+            <ul></ul>
+        </div>
+
+        <div class="dashboard-section" id="tips" style="margin-top: auto; margin-bottom: 20px;">
+            <p id="tip-text"></p>
+        </div>
     </div>
-    <div class="dashboard-section" id="recently-closed">
-        <h2>Cerradas Recientemente</h2>
-        <ul></ul>
-    </div>
-    <div class="dashboard-section" id="tips">
-        <h2>Consejos SecureScope</h2>
-        <p></p>
-    </div>
+
     <script src="new-tab.js"></script>
 </body>
 </html>

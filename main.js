@@ -8,8 +8,8 @@ let mainWindow;
 let tabs = {};
 let activeTabId = null;
 let blackBoxView = null;
-const TOP_OFFSET = 52;
-const SIDEBAR_WIDTH = 250;
+const TOP_OFFSET = 88; // 40px titlebar + 48px navbar
+const SIDEBAR_WIDTH = 0;
 let isSidebarOpen = false;
 let history = {};
 let recentlyClosedTabs = [];
