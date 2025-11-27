@@ -146,9 +146,8 @@ function createNewTab(url = `file://${path.join(__dirname, 'new-tab.html')}`) {
     const view = new BrowserView({
         webPreferences: {
             session: ses,
-            sandbox: true,
+            preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
-            nodeIntegration: false,
             plugins: false,
             enableWebSQL: false,
             webgl: false,
