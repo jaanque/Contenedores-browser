@@ -7,8 +7,8 @@
     --accent-color: #1a73e8;
     --border-color: #DADCE0;
     --tab-height: 36px;
-    --navbar-height: 48px;
-    --titlebar-height: 40px; /* Tabs + Window Controls */
+    --navbar-height: 52px; /* Increased for accessibility */
+    --titlebar-height: 42px; /* Tabs + Window Controls */
 }
 
 body {
@@ -101,10 +101,15 @@ body {
 .tab.active + .tab::before { display: none; }
 
 .tab-favicon {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
+    width: 20px; /* Increased visibility */
+    height: 20px;
+    margin-right: 10px;
     flex-shrink: 0;
+    border-radius: 4px; /* Soft edges */
+    background-color: white; /* Contrast fallback */
+    padding: 2px;
+    box-sizing: border-box;
+    object-fit: contain;
 }
 
 .tab-text {
@@ -130,8 +135,8 @@ body {
 .tab-close svg { width: 10px; height: 10px; fill: var(--text-color); }
 
 #new-tab-btn {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
     background: transparent;
@@ -139,11 +144,13 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    margin-left: 4px;
-    margin-bottom: 2px;
+    margin-left: 8px;
+    margin-bottom: 4px;
     color: var(--text-color);
+    transition: background-color 0.2s;
 }
-#new-tab-btn:hover { background-color: rgba(0,0,0,0.08); }
+#new-tab-btn:hover { background-color: rgba(0,0,0,0.1); }
+#new-tab-btn svg { width: 20px; height: 20px; }
 
 /* Window Controls (Top Right) */
 #window-controls {
@@ -182,8 +189,8 @@ body {
 }
 
 .nav-btn {
-    width: 32px;
-    height: 32px;
+    width: 40px; /* Larger hit target */
+    height: 40px;
     border: none;
     border-radius: 50%;
     background: transparent;
@@ -195,7 +202,7 @@ body {
 }
 .nav-btn:hover:not(:disabled) { background-color: var(--bg-color-hover); color: var(--text-color); }
 .nav-btn:disabled { opacity: 0.3; cursor: default; }
-.nav-btn svg { width: 18px; height: 18px; }
+.nav-btn svg { width: 22px; height: 22px; }
 
 #omnibox {
     flex: 1;

@@ -117,7 +117,7 @@ ipcRenderer.on('update-url', (e, url) => {
         urlInput.value = '';
         urlInput.placeholder = 'Buscar o escribir URL';
     } else {
-        urlInput.value = url; // Keep full URL for editing
+        urlInput.value = displayUrl; // Show clean URL
     }
 });
 
