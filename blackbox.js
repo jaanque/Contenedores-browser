@@ -18,9 +18,18 @@ ipcRenderer.on('update-containers', (event, containers, totalRam) => {
                 <p>URL: ${container.url}</p>
                 <p>Estado: ${container.state}</p>
                 <p>RAM: ${container.ram} MB</p>
+                <p>Uptime: ${container.uptime}</p>
+                <button class="kill-btn" data-pid="${container.pid}">Terminar Proceso</button>
             </div>
         `;
         containerList.appendChild(containerElement);
+    });
+
+    document.querySelectorAll('.kill-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const pid = e.target.dataset.pid;
+            ipcRenderer.send('kill-process', pid);
+        });
     });
 });
 

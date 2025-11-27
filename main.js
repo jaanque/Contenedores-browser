@@ -102,13 +102,15 @@ function updateBlackBoxData() {
             const ram = metric ? (metric.memory.privateBytes / 1024 / 1024) : 0; // en MB
             totalRam += ram;
 
+            const uptime = Math.round((Date.now() - tab.creationTime) / 1000);
             containersData.push({
                 id: tabId,
                 title: tab.title,
                 state: tab.status || 'Activo',
                 ram: ram.toFixed(2),
                 url: tab.view.webContents.getURL(),
-                pid: pid
+                pid: pid,
+                uptime: `${uptime}s`
             });
         }
     }
@@ -119,6 +121,7 @@ function updateBlackBoxData() {
 function createNewTab(url = `file://${path.join(__dirname, 'new-tab.html')}`) {
     logToBlackBox(`Creando nuevo contenedor con URL: ${url}`);
     const tabId = Date.now().toString();
+    const creationTime = Date.now();
     const ses = session.fromPartition(`scope-${tabId}`, { cache: false });
 
     ses.setPermissionRequestHandler((webContents, permission, callback) => callback(false));
@@ -169,6 +172,8 @@ function createNewTab(url = `file://${path.join(__dirname, 'new-tab.html')}`) {
     view.webContents.on('unresponsive', () => { tabs[tabId].status = 'Colgado'; updateBlackBoxData(); });
     view.webContents.on('responsive', () => { tabs[tabId].status = 'Activo'; updateBlackBoxData(); });
     view.webContents.on('crashed', () => { tabs[tabId].status = 'Fallido'; updateBlackBoxData(); });
+
+    tabs[tabId] = { view: view, title: 'Contenedor Seguro', status: 'Cargando...', creationTime: creationTime };
 
     view.webContents.on('did-navigate', (e, newUrl) => {
         logToBlackBox(`Contenedor ${tabId} navegó a: ${newUrl}`);
@@ -268,6 +273,14 @@ ipcMain.on('sidebar-state-change', (e, isOpen) => {
     isSidebarOpen = isOpen;
     if (activeTabId && tabs[activeTabId]) {
         tabs[activeTabId].view.setBounds(getAppContentBounds());
+    }
+});
+ipcMain.on('kill-process', (e, pid) => {
+    logToBlackBox(`Intentando terminar el proceso: ${pid}`);
+    try {
+        process.kill(pid);
+    } catch (error) {
+        logToBlackBox(`Error al terminar el proceso ${pid}: ${error.message}`);
     }
 });
 ipcMain.on('new-tab', () => createNewTab());

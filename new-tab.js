@@ -9,3 +9,21 @@ searchForm.addEventListener('submit', (e) => {
         window.electron.sendNavigate(searchUrl);
     }
 });
+
+const clockElement = document.getElementById('clock');
+
+function updateClock() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    clockElement.textContent = timeString;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+document.querySelectorAll('.quick-links a').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.electron.sendNavigate(e.currentTarget.href);
+    });
+});
