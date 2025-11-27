@@ -370,7 +370,7 @@ ipcMain.on('navigate', (e, url) => {
 });
 ipcMain.on('go-back', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.navigationHistory.goBack() });
 ipcMain.on('go-forward', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.navigationHistory.goForward() });
-ipcMain.on('reload', () => { if (activeTabid !== 'BLACKBOX') tabs[activeTabId].view.webContents.reload() });
+ipcMain.on('reload', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.reload() });
 
 app.whenReady().then(createWindow);
 app.on('window-all-closed', () => app.quit());

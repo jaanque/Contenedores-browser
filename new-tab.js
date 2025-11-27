@@ -32,7 +32,7 @@ function loadTopSites() {
 
     if (!topSites || topSites.length === 0) {
         topSites = [
-            'https://www.google.com',
+            'https://duckduckgo.com',
             'https://www.youtube.com',
             'https://www.wikipedia.org',
             'https://twitter.com',
