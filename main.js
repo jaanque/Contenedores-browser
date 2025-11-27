@@ -258,8 +258,8 @@ function closeTab(id) {
 function checkNavButtons(view) {
     if (activeTabId && tabs[activeTabId] && activeTabId !== 'BLACKBOX') {
         mainWindow.webContents.send('update-nav-state', {
-            canGoBack: view.webContents.canGoBack(),
-            canGoForward: view.webContents.canGoForward()
+            canGoBack: view.webContents.navigationHistory.canGoBack(),
+            canGoForward: view.webContents.navigationHistory.canGoForward()
         });
     }
 }
@@ -277,9 +277,9 @@ ipcMain.on('close-tab', (e, id) => closeTab(id));
 ipcMain.on('navigate', (e, url) => {
     if (activeTabId && activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.loadURL(url.startsWith('http') ? url : `https://${url}`);
 });
-ipcMain.on('go-back', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.goBack() });
-ipcMain.on('go-forward', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.goForward() });
-ipcMain.on('reload', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.reload() });
+ipcMain.on('go-back', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.navigationHistory.goBack() });
+ipcMain.on('go-forward', () => { if (activeTabId !== 'BLACKBOX') tabs[activeTabId].view.webContents.navigationHistory.goForward() });
+ipcMain.on('reload', () => { if (activeTabid !== 'BLACKBOX') tabs[activeTabId].view.webContents.reload() });
 
 app.whenReady().then(createWindow);
 app.on('window-all-closed', () => app.quit());
