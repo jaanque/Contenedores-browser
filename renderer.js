@@ -1,5 +1,7 @@
 const { ipcRenderer } = require('electron');
 
+const DEFAULT_FAVICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L8.38 15.21A8.94 8.94 0 0 1 11 19.93zm8.21-3.21c-.49-1.09-1.18-2.08-2.02-2.92l-4.1-4.1c.36-.08.72-.12 1.09-.12.91 0 1.77.21 2.54.6l3.35-3.35A9.914 9.914 0 0 1 22 12c0 2.12-.67 4.08-1.79 5.72z"/></svg>`;
+
 // Window Controls
 document.getElementById('minimize-btn').addEventListener('click', () => {
     ipcRenderer.send('minimize-window');
@@ -53,7 +55,8 @@ function createTab(id) {
 
     const favicon = document.createElement('img');
     favicon.className = 'tab-favicon';
-    favicon.src = 'default-favicon.png'; // A default favicon
+    favicon.src = `data:image/svg+xml;base64,${btoa(DEFAULT_FAVICON)}`;
+    favicon.onerror = () => { favicon.src = `data:image/svg+xml;base64,${btoa(DEFAULT_FAVICON)}`; };
 
     const text = document.createElement('span');
     text.className = 'tab-text';
